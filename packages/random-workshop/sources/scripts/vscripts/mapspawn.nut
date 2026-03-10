@@ -33,8 +33,8 @@ if (!("Entities" in this)) return;
 
   // Connect outputs to run finish events
   EntFire("@relay_pti_level_end", "AddOutput", "OnTrigger !self:RunScriptCode:__elFinish():0.1:1");
-  EntFire("@changelevel", "AddOutput", "OnChangeLevel !self:RunScriptCode:__elFinish():0.1:1");
-  ::RequestMapRating <- __elFinish;
+  EntFire("@changelevel", "AddOutput", "OnChangeLevel !self:RunScriptCode:__elFinish():0.2:1");
+  ::RequestMapRating <- ::__elFinish;
 
   // Fix BEEmod maps with pellet dependency
   local pelletWarning = Entities.FindByName(null, "@stop_for_pellets");
@@ -42,10 +42,13 @@ if (!("Entities" in this)) return;
 
 };
 
+::__elFinishLock <- false;
 // Called when the map end condition is reached
 ::__elFinish <- function () {
   // Overwrite this function with a no-op to prevent repeat calls
   ::__elFinish <- function () { };
+  if (__elFinishLock) return;
+  ::__elFinishLock <- true;
   // Print this message as a signal to JS API that we need the next map
   printl("\n\nFetching a random map...");
   // Silently pause the game while the map is loaded
