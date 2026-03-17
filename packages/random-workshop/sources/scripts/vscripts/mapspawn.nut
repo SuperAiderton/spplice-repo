@@ -40,6 +40,28 @@ if (!("Entities" in this)) return;
   local pelletWarning = Entities.FindByName(null, "@stop_for_pellets");
   if (pelletWarning) pelletWarning.Destroy();
 
+  // End run on PTI restart trigger
+  local restartTrigger = Entities.FindByName(null, "@preview_restart_trigger");
+  if (restartTrigger) {
+    local hookFunction = function ():(restartTrigger) {
+      if (activator == restartTrigger || caller == restartTrigger) {
+        ::__elFinish();
+        return false;
+      }
+      return true;
+    };
+    for (local i = 0; i < 3; i ++) {
+      local commandClass = ["point_clientcommand", "point_servercommand", "point_broadcastclientcommand"][i];
+      local ent = null;
+      while (ent = Entities.FindByClassname(ent, commandClass)) {
+        if (!ent.IsValid()) continue;
+        if (!ent.ValidateScriptScope()) continue;
+        ent.GetScriptScope()["InputCommand"] <- hookFunction;
+        ent.GetScriptScope()["Inputcommand"] <- hookFunction;
+      }
+    }
+  }
+
 };
 
 ::__elFinishLock <- false;
