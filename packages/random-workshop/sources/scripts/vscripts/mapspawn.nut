@@ -35,6 +35,7 @@ if (!("Entities" in this)) return;
   EntFire("@relay_pti_level_end", "AddOutput", "OnTrigger !self:RunScriptCode:__elFinish():0.1:1");
   EntFire("@changelevel", "AddOutput", "OnChangeLevel !self:RunScriptCode:__elFinish():0.2:1");
   ::RequestMapRating <- ::__elFinish;
+  ::TransitionFromMap <- ::__elFinish;
 
   // Fix BEEmod maps with pellet dependency
   local pelletWarning = Entities.FindByName(null, "@stop_for_pellets");
