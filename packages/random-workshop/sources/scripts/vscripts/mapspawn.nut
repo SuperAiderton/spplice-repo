@@ -35,7 +35,6 @@ if (!("Entities" in this)) return;
   EntFire("@relay_pti_level_end", "AddOutput", "OnTrigger !self:RunScriptCode:__elFinish():0.1:1");
   EntFire("@changelevel", "AddOutput", "OnChangeLevel !self:RunScriptCode:__elFinish():0.2:1");
   ::RequestMapRating <- ::__elFinish;
-  ::TransitionFromMap <- ::__elFinish;
 
   // Fix BEEmod maps with pellet dependency
   local pelletWarning = Entities.FindByName(null, "@stop_for_pellets");
@@ -61,6 +60,18 @@ if (!("Entities" in this)) return;
         ent.GetScriptScope()["Inputcommand"] <- hookFunction;
       }
     }
+  }
+
+  // End run on "End of playtest" text
+  local playtestText = Entities.FindByName(null, "@end_of_playtest_text");
+  if (!playtestText) playtestText = Entities.FindByName(null, "end_of_playtest_text");
+  if (playtestText) if (playtestText.ValidateScriptScope()) {
+    local scope = playtestText.GetScriptScope();
+    scope["InputDisplay"] <- function () {
+      ::__elFinish();
+      return false;
+    };
+    scope["Inputdisplay"] <- scope["InputDisplay"];
   }
 
 };
