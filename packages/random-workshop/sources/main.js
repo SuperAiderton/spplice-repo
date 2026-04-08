@@ -132,8 +132,9 @@ function processConsoleOutput () {
 
     // Process request for a new random map
     if (line.indexOf("Fetching a random map...") !== -1) {
-      // Print the URL for the map the player just completed
-      if (currentMapURL) sendToConsole(gameSocket, 'echo "Completed map\'s URL: ' + currentMapURL + '";echo;echo');
+      // Print the URL for the last map played (fall back to server query if not stored here)
+      const finishedMapURL = currentMapURL || getLastPlayedMapURL();
+      if (finishedMapURL) sendToConsole(gameSocket, 'echo "Previous map\'s URL: ' + finishedMapURL + '";echo;echo');
       // Start a cached map if available, download a new one otherwise
       startMap(nextMap ? nextMap : forceRandomMap(false));
       // Precache the next random map
@@ -183,6 +184,30 @@ function startMap (data) {
   return sendToConsole(gameSocket, 'disconnect;map "' + data.path + '"');
 }
 
+/**
+ * Fetches map data from server and parses it as JSON.
+ * @param {boolean} previous Whether to get the previously downloaded maps
+ */
+function getWorkshopperJson (previous) {
+  const endpoint = previous ? "randomsource" : "random";
+  const json = download.string(HTTP_ADDRESS + "/api/workshopper/" + endpoint + '/"' + steamid + '"');
+  return JSON.parse(json);
+}
+
+/**
+ * Gets the workshop URL for the last map the user played.
+ * Does not download map files.
+ * @returns {string} URL or "" if unavailable
+ */
+function getLastPlayedMapURL () {
+  try {
+    const data = getWorkshopperJson(true);
+    return "https://steamcommunity.com/sharedfiles/filedetails/?id=" + data[0].publishedfileid;
+  } catch (e) {
+    return "";
+  }
+}
+
 // Wrapper for getRandomMap - retries until the procedure succeeds
 function forceRandomMap (previous) {
   try {
@@ -204,10 +229,7 @@ function forceRandomMap (previous) {
  */
 function getRandomMap (previous) {
 
-  // Fetch data from server and parse it as JSON
-  const endpoint = previous ? "randomsource" : "random";
-  const json = download.string(HTTP_ADDRESS + "/api/workshopper/" + endpoint + '/"' + steamid + '"');
-  const data = JSON.parse(json);
+  const data = getWorkshopperJson(previous);
 
   // Depending on the type of query, download either one or two maps
   if (previous) {
