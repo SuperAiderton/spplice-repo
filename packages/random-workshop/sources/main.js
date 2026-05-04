@@ -180,6 +180,11 @@ function processConsoleOutput () {
 
 // Starts a map from the given path
 function startMap (data) {
+  // Reset persistent cvars
+  sendToConsole(gameSocket, "sv_allow_mobile_portals 0");
+  sendToConsole(gameSocket, "map_wants_save_disable 0");
+  sendToConsole(gameSocket, "sv_cheats 0");
+  // Set and load next map
   currentMapURL = data.url;
   return sendToConsole(gameSocket, 'disconnect;map "' + data.path + '"');
 }
