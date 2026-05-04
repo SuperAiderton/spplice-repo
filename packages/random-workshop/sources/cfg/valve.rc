@@ -1,0 +1,15 @@
+// Permanently set console log file
+con_logfile console_rti.log
+alias con_logfile
+
+// Setup custom controller
+exec joystick.cfg
+
+// run a user script file if present
+exec autoexec.cfg
+
+// stuff command line statements
+stuffcmds
+
+// display the startup level
+startupmenu
